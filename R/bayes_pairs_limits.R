@@ -36,6 +36,10 @@ bayes_pairs_limits <- function(posteriors, limits){
         plt <- ggplot2::ggplot() +
           ggplot2::stat_density(data=posteriors, ggplot2::aes(posteriors[[j-1]]),
                                 size=0.2, geom = "line", position = "identity")+
+          ggplot2::geom_vline(data=posteriors, xintercept = mean(posteriors[[j-1]]),
+                                size=0.2, colour = "red")+
+          ggplot2::geom_vline(data=posteriors, xintercept = median(posteriors[[j-1]]),
+                              size=0.2, colour = "blue")+
           ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
           theme_ajf()+
           ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -46,6 +50,10 @@ bayes_pairs_limits <- function(posteriors, limits){
         plt <- ggplot2::ggplot() +
           ggplot2::stat_density(data=posteriors, ggplot2::aes(posteriors[[i-1]]),
                                 size=0.2, geom = "line", position = "identity")+
+          ggplot2::geom_vline(data=posteriors, xintercept = mean(posteriors[[i-1]]),
+                              size=0.2, colour = "red")+
+          ggplot2::geom_vline(data=posteriors, xintercept = median(posteriors[[i-1]]),
+                              size=0.2, colour = "blue")+
           ggplot2::scale_x_continuous(limits = c(limits[i-1,1], limits[i-1,2])) +
           theme_ajf()+
           ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -73,6 +81,10 @@ bayes_pairs_limits <- function(posteriors, limits){
           ggplot2::stat_density_2d(ggplot2::aes(x = posteriors[[j-1]], y = posteriors[[i-1]],
                                                 fill=..level..),
                                    geom='polygon', size=0.2)+
+          ggplot2::geom_point(ggplot2::aes(x = mean(posteriors[[j-1]]), y = mean(posteriors[[i-1]])),
+                              colour="red", size=0.4)+
+          ggplot2::geom_point(ggplot2::aes(x = median(posteriors[[j-1]]), y = median(posteriors[[i-1]])),
+                              colour="blue", size=0.4)+
           ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
           ggplot2::scale_y_continuous(limits = c(limits[i-1,1], limits[i-1,2]))+
           ggplot2::scale_fill_continuous(guide="none", low="yellow",high="red")+
@@ -86,6 +98,10 @@ bayes_pairs_limits <- function(posteriors, limits){
         plt <- ggplot2::ggplot() +
           ggplot2::geom_density_2d(ggplot2::aes(x = posteriors[[j-1]], y = posteriors[[i-1]],
                                                 colour=..level..), size=0.2)+
+          ggplot2::geom_point(ggplot2::aes(x = mean(posteriors[[j-1]]), y = mean(posteriors[[i-1]])),
+                              colour="red", size=0.4)+
+          ggplot2::geom_point(ggplot2::aes(x = median(posteriors[[j-1]]), y = median(posteriors[[i-1]])),
+                              colour="blue", size=0.4)+
           ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
           ggplot2::scale_y_continuous(limits = c(limits[i-1,1], limits[i-1,2]))+
           ggplot2::scale_colour_continuous(guide="none", low="yellow",high="red")+
