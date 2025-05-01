@@ -1,8 +1,8 @@
 #' Plot pairs posteriors
 #'
-#' @param posteriors a data.frame with each posterior parameter as a column
+#' @param posteriors a data.frame with parameters as columns and samples as rows
 #' @param priors a data.frame sampled from the prior distribution used to produce the posteriors
-#' @param limits a array of upper and lower bounds for plotting each posterior
+#' @param limits a data.frame with paramaters as columns and two rows, one with upper bounds and one with lower bounds (the order does not matter)
 #'
 #' @return a gtable with rug plots on the top and lefthand side, parameter names on the diagonal and 2D density plots in other positions
 #' @export

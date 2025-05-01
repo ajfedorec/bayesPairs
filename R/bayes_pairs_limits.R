@@ -1,7 +1,7 @@
 #' Plot pairs posteriors
 #'
-#' @param posteriors a data.frame with each posterior parameter as a column
-#' @param limits a data.frame sampled from the prior distribution used to produce the posteriors
+#' @param posteriors a data.frame with parameters as columns and samples as rows
+#' @param limits a data.frame with paramaters as columns and two rows, one with upper bounds and one with lower bounds (the order does not matter)
 #'
 #' @return a gtable with rug plots on the top and lefthand side, parameter names on the diagonal and 2D density plots in other positions
 #' @export
@@ -9,6 +9,7 @@
 #' @examples
 bayes_pairs_limits <- function(posteriors, limits){
   n_params <- ncol(posteriors)
+  params <- names(posteriors)
 
   plt.list <- list()
   plt.idx <- 1
@@ -33,28 +34,30 @@ bayes_pairs_limits <- function(posteriors, limits){
                          axis.line = ggplot2::element_blank())
       }
       else if((i == 1)){ ## TOP RUG PLOTS
+        param <- params[j-1]
         plt <- ggplot2::ggplot() +
-          ggplot2::stat_density(data=posteriors, ggplot2::aes(posteriors[[j-1]]),
-                                size=0.2, geom = "line", position = "identity")+
-          ggplot2::geom_vline(data=posteriors, xintercept = mean(posteriors[[j-1]]),
-                                size=0.2, colour = "red")+
-          ggplot2::geom_vline(data=posteriors, xintercept = median(posteriors[[j-1]]),
-                              size=0.2, colour = "blue")+
-          ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
+          ggplot2::stat_density(data=posteriors, ggplot2::aes(.data[[param]]),
+                                size=0.2, geom = "line", position = "identity") +
+          ggplot2::geom_vline(data=posteriors, ggplot2::aes(xintercept = mean(.data[[param]])),
+                                size=0.2, colour = "red") +
+          ggplot2::geom_vline(data=posteriors, ggplot2::aes(xintercept = median(.data[[param]])),
+                              size=0.2, colour = "blue") +
+          ggplot2::scale_x_continuous(limits = c(min(limits[param]), max(limits[param]))) +
           theme_ajf()+
           ggplot2::theme(axis.title = ggplot2::element_blank(),
                          axis.text.y = ggplot2::element_blank(),
                          axis.ticks.y = ggplot2::element_blank())
       }
       else if((j == 1)){ ## LHS RUG PLOTS
+        param <- params[i-1]
         plt <- ggplot2::ggplot() +
-          ggplot2::stat_density(data=posteriors, ggplot2::aes(posteriors[[i-1]]),
-                                size=0.2, geom = "line", position = "identity")+
-          ggplot2::geom_vline(data=posteriors, xintercept = mean(posteriors[[i-1]]),
-                              size=0.2, colour = "red")+
-          ggplot2::geom_vline(data=posteriors, xintercept = median(posteriors[[i-1]]),
-                              size=0.2, colour = "blue")+
-          ggplot2::scale_x_continuous(limits = c(limits[i-1,1], limits[i-1,2])) +
+          ggplot2::stat_density(data=posteriors, ggplot2::aes(.data[[param]]),
+                                size=0.2, geom = "line", position = "identity") +
+          ggplot2::geom_vline(data=posteriors, ggplot2::aes(xintercept = mean(.data[[param]])),
+                              size=0.2, colour = "red") +
+          ggplot2::geom_vline(data=posteriors, ggplot2::aes(xintercept = median(.data[[param]])),
+                              size=0.2, colour = "blue") +
+          ggplot2::scale_x_continuous(limits = c(min(limits[param]), max(limits[param]))) +
           theme_ajf()+
           ggplot2::theme(axis.title = ggplot2::element_blank(),
                          axis.text.x = ggplot2::element_blank(),
@@ -63,9 +66,10 @@ bayes_pairs_limits <- function(posteriors, limits){
           ggplot2::scale_y_reverse()
       }
       else if(i == j){ ## DIAGONAL PARAM NAMES
+        param <- params[i-1]
         ## plot param name
         plt <- ggplot2::ggplot()+
-          ggplot2::annotate("text", x = 4, y = 25, size=4, label = as.character(colnames(posteriors)[i-1]))+
+          ggplot2::annotate("text", x = 4, y = 25, size=4, label = param)+
           ggplot2::theme(plot.background = ggplot2::element_blank(),
                          panel.grid.major = ggplot2::element_blank(),
                          panel.grid.minor = ggplot2::element_blank(),
@@ -77,16 +81,18 @@ bayes_pairs_limits <- function(posteriors, limits){
                          axis.line = ggplot2::element_blank())
       }
       else if(j>i){ ## TOP DIAG DENSITY PLOTS
-        plt <- ggplot2::ggplot() +
-          ggplot2::stat_density_2d(ggplot2::aes(x = posteriors[[j-1]], y = posteriors[[i-1]],
+        param_y <- params[i-1]
+        param_x <- params[j-1]
+        plt <- ggplot2::ggplot(data = posteriors) +
+          ggplot2::stat_density_2d(ggplot2::aes(x = .data[[param_x]], y = .data[[param_y]],
                                                 fill=..level..),
-                                   geom='polygon', size=0.2)+
-          ggplot2::geom_point(ggplot2::aes(x = mean(posteriors[[j-1]]), y = mean(posteriors[[i-1]])),
-                              colour="red", size=0.4)+
-          ggplot2::geom_point(ggplot2::aes(x = median(posteriors[[j-1]]), y = median(posteriors[[i-1]])),
-                              colour="blue", size=0.4)+
-          ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
-          ggplot2::scale_y_continuous(limits = c(limits[i-1,1], limits[i-1,2]))+
+                                   geom='polygon', size=0.2) +
+          ggplot2::geom_point(ggplot2::aes(x = mean(.data[[param_x]]), y = mean(.data[[param_y]])),
+                              colour="red", size=0.4) +
+          ggplot2::geom_point(ggplot2::aes(x = median(.data[[param_x]]), y = median(.data[[param_y]])),
+                              colour="blue", size=0.4) +
+          ggplot2::scale_x_continuous(limits = c(min(limits[param_x]), max(limits[param_x]))) +
+          ggplot2::scale_y_continuous(limits = c(min(limits[param_y]), max(limits[param_y]))) +
           ggplot2::scale_fill_continuous(guide="none", low="yellow",high="red")+
           ggplot2::scale_alpha_continuous(guide="none")+
           theme_ajf()+
@@ -95,15 +101,17 @@ bayes_pairs_limits <- function(posteriors, limits){
                          axis.ticks = ggplot2::element_blank())
       }
       else { ## BOTTOM DIAG DENSITY PLOTS
-        plt <- ggplot2::ggplot() +
-          ggplot2::geom_density_2d(ggplot2::aes(x = posteriors[[j-1]], y = posteriors[[i-1]],
+        param_y <- params[i-1]
+        param_x <- params[j-1]
+        plt <- ggplot2::ggplot(data = posteriors) +
+          ggplot2::stat_density_2d(ggplot2::aes(x = .data[[param_x]], y = .data[[param_y]],
                                                 colour=..level..), size=0.2)+
-          ggplot2::geom_point(ggplot2::aes(x = mean(posteriors[[j-1]]), y = mean(posteriors[[i-1]])),
-                              colour="red", size=0.4)+
-          ggplot2::geom_point(ggplot2::aes(x = median(posteriors[[j-1]]), y = median(posteriors[[i-1]])),
-                              colour="blue", size=0.4)+
-          ggplot2::scale_x_continuous(limits = c(limits[j-1,1], limits[j-1,2]))+
-          ggplot2::scale_y_continuous(limits = c(limits[i-1,1], limits[i-1,2]))+
+          ggplot2::geom_point(ggplot2::aes(x = mean(.data[[param_x]]), y = mean(.data[[param_y]])),
+                              colour="red", size=0.4) +
+          ggplot2::geom_point(ggplot2::aes(x = median(.data[[param_x]]), y = median(.data[[param_y]])),
+                              colour="blue", size=0.4) +
+          ggplot2::scale_x_continuous(limits = c(min(limits[param_x]), max(limits[param_x]))) +
+          ggplot2::scale_y_continuous(limits = c(min(limits[param_y]), max(limits[param_y]))) +
           ggplot2::scale_colour_continuous(guide="none", low="yellow",high="red")+
           ggplot2::scale_alpha_continuous(guide="none")+
           theme_ajf()+
